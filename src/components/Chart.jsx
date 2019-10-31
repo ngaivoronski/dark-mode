@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import moment from "moment";
 import {
   LineChart,
@@ -9,8 +9,10 @@ import {
   Tooltip
 } from "recharts";
 
-const Chart = ({ sparklineData }) => {
-  const formattedData = sparklineData
+const Chart = (props) => {
+  const [lineColor, setLineColor] = useState('#8884d8');
+
+  const formattedData = props.sparklineData
     .map((price, idx) => {
       if (idx % 6 === 0) {
         const timeToSubtract = 168 - idx;
@@ -18,7 +20,7 @@ const Chart = ({ sparklineData }) => {
           .subtract(timeToSubtract, "hours")
           .format("ddd h:mma");
         return { value: price, date };
-      } else if (idx === sparklineData.length - 1) {
+      } else if (idx === props.sparklineData.length - 1) {
         const date = moment().format("ddd h:mma");
         return { value: price, date };
       }
@@ -26,9 +28,23 @@ const Chart = ({ sparklineData }) => {
     })
     .filter(data => data);
 
+    const updateCharts = () => {
+      if (document.body.classList.contains("dark-mode")) {
+        console.log("dark mode");
+        setLineColor('#6CFF5F')
+        
+      } else {
+        setLineColor('#8884d8')
+      }
+    }
+
+    useEffect(()=>{
+      updateCharts();
+    },[props.darkModeToggle]);
+
   return (
     <LineChart width={1100} height={300} data={formattedData}>
-      <Line type="monotone" dataKey="value" stroke="#8884d8" />
+      <Line type="monotone" dataKey="value" stroke={lineColor}/>
       <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
       <XAxis dataKey="date" interval={3} />
       <YAxis />
